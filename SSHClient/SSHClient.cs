@@ -155,16 +155,14 @@ namespace SSHClient
 
         private void SshStream_DataReceived(object sender, ShellDataEventArgs e)
         {
-            Debug("Data received...");
-
             var stream = (ShellStream)sender;
             string dataReceived = "";
+            Debug("Received Data. Length: " + stream.Length);
             
             // Loop as long as there is data on the stream
             while (stream.DataAvailable)
             {
                 dataReceived = stream.Read();
-                Debug(dataReceived);
             }
             
             if (dataReceived != "")
