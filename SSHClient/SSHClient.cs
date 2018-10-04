@@ -19,6 +19,7 @@ namespace SSHClient
         private string username = "";
         private string hostname = "";
         private string password = "";
+        private bool initialized = false;
 
         private SshClient client;
         private ShellStream stream;
@@ -47,17 +48,31 @@ namespace SSHClient
             }
         }
 
-        public ushort Connect(String Host, ushort Port, String Username, String Password)
+        public void Initialize(string hostname, string username, string password)
         {
-            CrestronConsole.PrintLine("Connect() called, Host: {0}, Port: {1}, Username: {2}, Password {3}", Host, Port, Username, Password);
+            CrestronConsole.PrintLine("Initialize() called. hostname: {0}, username: {1}, password: {2}", hostname, username, password);
+
+            this.hostname = hostname;
+            this.username = username;
+            this.password = password;
+            
+            initialized = true;
+        }
+
+        public ushort Connect()
+        {
+            CrestronConsole.PrintLine("Connect() called");
+
+            if (!initialized)
+            {
+                CrestronConsole.PrintLine("Connection properties not initialized.");
+                return 0;
+            }
 
             try
             {
                 if (client != null && client.IsConnected) return 1;
-
-                username = Username;
-                password = Password;
-                hostname = Host;
+               
 
                 if (Debug > 0) CrestronConsole.PrintLine("Starting...");
 
