@@ -41,11 +41,6 @@ namespace SSHClient
             {
                 connected = value;
                 SshStateChangeToSimpl(Convert.ToUInt16(value == true ? 1 : 0));
-
-                if (value == false)
-                {
-                    Disconnect();
-                }
             }
         }
 
