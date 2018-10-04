@@ -125,11 +125,20 @@ namespace SSHClient
 
         public void Disconnect()
         {
-            if (client != null)
+            CrestronConsole.PrintLine("Disconnect() called.");
+
+            try
             {
-                client.Disconnect();
-                client.Dispose();
-                stream.Dispose();
+                if (client != null)
+                {
+                    client.Disconnect();
+                    client.Dispose();
+                    stream.Dispose();
+                }
+            }
+            catch (Exception e)
+            {
+                CrestronConsole.PrintLine("Exception occured while disconnecting: " + e.Message);
             }
         }
 
