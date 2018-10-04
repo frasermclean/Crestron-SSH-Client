@@ -17,9 +17,7 @@ namespace SSHClient
 
         // ssh objects
         private SshClient client;
-        private ShellStream stream;
-        private ConnectionInfo connectionInfo = null;
-        private KeyboardInteractiveAuthenticationMethod authMethod = null;       
+        private ShellStream stream;       
 
         // connection details
         private string username, hostname, password;
@@ -69,65 +67,46 @@ namespace SSHClient
             initialized = true;
         }
 
-        public ushort Connect()
+        public void Connect()
         {
-           Debug("Connect() called");
-
+            // check that data has been initialized
             if (!initialized)
             {
                 Debug("Connection properties not initialized.");
-                return 0;
+                return;
             }
+          
+            // set up authentication method
+            KeyboardInteractiveAuthenticationMethod authMethod = new KeyboardInteractiveAuthenticationMethod(username);
+            authMethod.AuthenticationPrompt += new EventHandler<AuthenticationPromptEventArgs>(SshAuthMethod_AuthenticationPrompt);
 
+            // set up connection info
+            ConnectionInfo connectionInfo = new ConnectionInfo(hostname, username, authMethod);
+
+            // set up client
+            client = new SshClient(connectionInfo);
+            client.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshClient_ErrorOccurred);
+            client.HostKeyReceived += new EventHandler<HostKeyEventArgs>(SshClient_HostKeyReceived);
+
+            // try to connect
+            Debug("Attempting connection to: " + hostname);
             try
             {
-                // set up authentication method
-                if (authMethod == null)
-                {
-                    authMethod = new KeyboardInteractiveAuthenticationMethod(username);
-                    authMethod.AuthenticationPrompt += new EventHandler<AuthenticationPromptEventArgs>(SshAuthMethod_AuthenticationPrompt);
-                    Debug("Auth Mode set");                  
-                }
-
-                // set up connection info
-                if (connectionInfo == null)
-                {
-                    connectionInfo = new ConnectionInfo(hostname, username, authMethod);
-                    Debug("Connection info set");
-                }
-                
-                // set up client
-                client = new SshClient(connectionInfo);
-                client.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshClient_ErrorOccurred);
-                client.HostKeyReceived += new EventHandler<HostKeyEventArgs>(SshClient_HostKeyReceived);
-
-                Debug("Connecting...");
-
                 client.Connect();
-
-                // create shellstream
-                try
-                {
-                    Debug("Creating stream...");
-
-                    stream = client.CreateShellStream("terminal", 80, 24, 800, 600, 1024);
-                    stream.DataReceived += new EventHandler<ShellDataEventArgs>(SshStream_DataReceived);
-                    stream.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshStream_ErrorOccurred);
-                }
-                catch (Exception ex)
-                {
-                    ErrorLog.Exception("Exception creating stream", ex);
-                }
-
-                SshState = true;
-
-                return 1;
             }
-            catch (Exception ex)
+            catch (SshConnectionException e)
             {
-                ErrorLog.Error(String.Format("Error Connecting: {0}", ex));
-                return 0;
+                Debug ("Connection error: " + e.Message);
+                return;
             }
+            
+            // create shellstream
+            stream = client.CreateShellStream("terminal", 80, 24, 800, 600, 1024);
+            stream.DataReceived += new EventHandler<ShellDataEventArgs>(SshStream_DataReceived);
+            stream.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshStream_ErrorOccurred);    
+                
+            // set connected flag
+            SshState = true;
         }
 
         public void Disconnect()
