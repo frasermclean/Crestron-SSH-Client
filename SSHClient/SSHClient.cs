@@ -29,6 +29,7 @@ namespace SSHClient
         public StateChangeHandler SshStateChangeToSimpl { get; set; }
         
         // debugging
+        private string debug_name;
         public ushort debug_enable = 0;
 
         private bool connected = false;   
@@ -53,16 +54,17 @@ namespace SSHClient
         public void Debug(string message)
         {
             if (debug_enable >= 1)
-                CrestronConsole.PrintLine(message);
+                CrestronConsole.PrintLine("[" + debug_name + "] message");
         }
 
-        public void Initialize(string hostname, string username, string password)
+        public void Initialize(string hostname, string username, string password, string debug_name)
         {
             Debug("Initialize() called. hostname: " + hostname + ", username: + " + username + ", password: " + password);
 
             this.hostname = hostname;
             this.username = username;
             this.password = password;
+            this.debug_name = debug_name;
             
             initialized = true;
         }
