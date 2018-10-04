@@ -5,11 +5,11 @@
 #USER_SIMPLSHARP_LIBRARY "SSHClient"
 
 // module inputs
-Digital_Input SshConnect, SshDisconnect, Debugging, _skip_;
+Digital_Input connect, disconnect, debug, _skip_;
 String_Input Tx[250], _skip_, IPAddress[50], Username[50], Password[50];
 
 // module outputs      
-Digital_Output Connected_Fb, Debugging_Fb;
+Digital_Output connected_fb;
 String_Output _skip_,_skip_,_skip_, Rx, _skip_;
 
 // global variables
@@ -30,28 +30,26 @@ Callback Function DataRx(string data)
 Callback Function StatusRx(integer status)
 {
 	connected = status;
-	Connected_Fb = status;
+	connected_fb = status;
 }
                                    
-Push SshConnect
+Push connect
 {
 	client.Connect(IPAddress, 22, Username, Password);
 }
 
-Push SshDisconnect
+Push disconnect
 {
  	client.Disconnect();
 }
 
-Push Debugging
+push debug
 {
-	if (client.Debug > 0)
-	{
-    	client.Debug = 0; 	
-	}
-	else client.Debug = 1;
-
-	Debugging_Fb = client.Debug;
+	client.Debug = 1;
+}
+release debug
+{
+	client.Debug = 0;
 }
 
 Threadsafe Change Tx
