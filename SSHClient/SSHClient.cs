@@ -132,12 +132,18 @@ namespace SSHClient
         {
             Debug("Disconnect() called.");
 
+            SshState = false;
+
             try
             {
                 if (client != null)
                 {
                     client.Disconnect();
-                    client.Dispose();
+                    client.Dispose();                    
+                }
+
+                if (stream != null)
+                {
                     stream.Dispose();
                 }
             }
@@ -159,7 +165,7 @@ namespace SSHClient
 
                 if (e.Message.ToLower().Contains("not connected"))
                 {
-                    SshState = false;
+                    Disconnect();
                 }
             }
         }
@@ -199,7 +205,7 @@ namespace SSHClient
         private void SshStream_ErrorOccurred(object sender, System.EventArgs e)
         {
             Debug("SSH Shellstream error " + e.ToString());
-            SshState = false;
+            Disconnect();
         }
         
         private void SshAuthMethod_AuthenticationPrompt(object sender, AuthenticationPromptEventArgs e)
@@ -218,12 +224,13 @@ namespace SSHClient
 
         private void SshClient_HostKeyReceived(object sender, HostKeyEventArgs e)
         {
+            Debug("Host key received");
             e.CanTrust = true;
         }
         private void SshClient_ErrorOccurred(object sender, ExceptionEventArgs e)
         {
             Debug("SSH Client error " + e.ToString());
-            SshState = false;
+            Disconnect();
         }
 
         private IEnumerable<string> SplitDataReceived(string str, int maxChunkSize)
