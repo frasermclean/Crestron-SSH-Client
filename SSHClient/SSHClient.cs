@@ -54,7 +54,7 @@ namespace SSHClient
         public void Debug(string message)
         {
             if (debug_enable >= 1)
-                CrestronConsole.PrintLine("[" + debug_name + "] " + message");
+                CrestronConsole.PrintLine("[" + debug_name + "] " + message);
         }
 
         public void Initialize(string hostname, string username, string password, string debug_name)
@@ -64,7 +64,7 @@ namespace SSHClient
             this.password = password;
             this.debug_name = debug_name;
 
-            Debug("Initialize() called. hostname: " + hostname + ", username: + " + username + ", password: " + password);
+            Debug("Initialize() called. hostname: " + hostname + ", username: " + username + ", password: " + password);
             
             initialized = true;
         }
