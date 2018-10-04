@@ -13,20 +13,22 @@ namespace SSHClient
 
     public class SSHClientDevice
     {
-        private ConnectionInfo SshConnectionInfo = null;
-        private KeyboardInteractiveAuthenticationMethod SshAuthMethod = null;
-
-        private string username = "";
-        private string hostname = "";
-        private string password = "";
         private bool initialized = false;
 
+        // ssh objects
         private SshClient client;
         private ShellStream stream;
+        private ConnectionInfo connectionInfo = null;
+        private KeyboardInteractiveAuthenticationMethod authMethod = null;       
 
+        // connection details
+        private string username, hostname, password;
+       
+        // delegates
         public CommandEventHandler SshRxDataToSimpl { get; set; }
         public StateChangeHandler SshStateChangeToSimpl { get; set; }
-
+        
+        // debugging
         public ushort Debug = 0;
 
         private bool connected = false;   
@@ -76,23 +78,24 @@ namespace SSHClient
 
                 if (Debug > 0) CrestronConsole.PrintLine("Starting...");
 
-                if (SshAuthMethod == null)
+                // set up connection info
+                if (connectionInfo == null)
                 {
-                    SshAuthMethod = new KeyboardInteractiveAuthenticationMethod(username);
-                    SshAuthMethod.AuthenticationPrompt += new EventHandler<AuthenticationPromptEventArgs>(SshAuthMethod_AuthenticationPrompt);
-                }
-                if (SshConnectionInfo == null)
-                {
-                    SshConnectionInfo = new ConnectionInfo(hostname, username, SshAuthMethod);
+                    connectionInfo = new ConnectionInfo(hostname, username, authMethod);
                 }
 
-                if (Debug > 0) CrestronConsole.PrintLine("Auth Mode set...");
-
-                client = new SshClient(SshConnectionInfo);
-
+                // set up authentication method
+                if (authMethod == null)
+                {
+                    authMethod = new KeyboardInteractiveAuthenticationMethod(username);
+                    authMethod.AuthenticationPrompt += new EventHandler<AuthenticationPromptEventArgs>(SshAuthMethod_AuthenticationPrompt);
+                    if (Debug > 0) CrestronConsole.PrintLine("Auth Mode set...");
+                }
+                
+                // set up client
+                client = new SshClient(connectionInfo);
                 client.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshClient_ErrorOccurred);
                 client.HostKeyReceived += new EventHandler<HostKeyEventArgs>(SshClient_HostKeyReceived);
-
 
                 if (Debug > 0) CrestronConsole.PrintLine("Connecting...");
 
