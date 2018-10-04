@@ -19,6 +19,7 @@ Log/
 *.ush
 *.vtz
 *.hash
+*.dll
 
 # we are choosing to ignore CEDs and SGDs, as they will be regenerated when the touchpanel is recompiled
 *.ced
