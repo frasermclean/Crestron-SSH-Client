@@ -108,24 +108,30 @@ namespace SSHClient
         {
             Debug("Disconnect() called.");
 
-            SshState = false;
-
-            try
+            // free stream
+            if (stream != null)
             {
-                if (client != null)
+                stream.Dispose();
+                stream = null;
+            }
+
+            // free client
+            if (client != null)
+            {
+                try
                 {
                     client.Disconnect();
-                    client.Dispose();                    
                 }
-
-                if (stream != null)
+                catch (SshConnectionException e)
                 {
-                    stream.Dispose();
+                    Debug("Exception occured while disconnecting: " + e.Message);
                 }
-            }
-            catch (Exception e)
-            {
-                Debug("Exception occured while disconnecting: " + e.Message);
+                finally
+                {
+                    client.Dispose();
+                    client = null;
+                    SshState = false;
+                }
             }
         }
 
