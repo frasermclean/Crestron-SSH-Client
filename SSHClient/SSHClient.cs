@@ -16,28 +16,28 @@ namespace SSHClient
         private ConnectionInfo SshConnectionInfo = null;
         private KeyboardInteractiveAuthenticationMethod SshAuthMethod = null;
 
-        private String SshUsername = "";
-        private String SshHost = "";
-        private String SshPassword = "";
+        private string username = "";
+        private string hostname = "";
+        private string password = "";
 
-        private SshClient SshClient;
-        private ShellStream SshStream;
+        private SshClient client;
+        private ShellStream stream;
 
         public CommandEventHandler SshRxDataToSimpl { get; set; }
         public StateChangeHandler SshStateChangeToSimpl { get; set; }
 
         public ushort Debug = 0;
 
-        private bool sshState = false;   
+        private bool connected = false;   
         public bool SshState
         {
             get
             {
-                return sshState;
+                return connected;
             }
             set
             {
-                sshState = value;
+                connected = value;
                 SshStateChangeToSimpl(Convert.ToUInt16(value == true ? 1 : 0));
 
                 if (value == false)
@@ -53,44 +53,44 @@ namespace SSHClient
 
             try
             {
-                if (SshClient != null && SshClient.IsConnected) return 1;
+                if (client != null && client.IsConnected) return 1;
 
-                SshUsername = Username;
-                SshPassword = Password;
-                SshHost = Host;
+                username = Username;
+                password = Password;
+                hostname = Host;
 
                 if (Debug > 0) CrestronConsole.PrintLine("Starting...");
 
                 if (SshAuthMethod == null)
                 {
-                    SshAuthMethod = new KeyboardInteractiveAuthenticationMethod(SshUsername);
+                    SshAuthMethod = new KeyboardInteractiveAuthenticationMethod(username);
                     SshAuthMethod.AuthenticationPrompt += new EventHandler<AuthenticationPromptEventArgs>(SshAuthMethod_AuthenticationPrompt);
                 }
                 if (SshConnectionInfo == null)
                 {
-                    SshConnectionInfo = new ConnectionInfo(SshHost, SshUsername, SshAuthMethod);
+                    SshConnectionInfo = new ConnectionInfo(hostname, username, SshAuthMethod);
                 }
 
                 if (Debug > 0) CrestronConsole.PrintLine("Auth Mode set...");
 
-                SshClient = new SshClient(SshConnectionInfo);
+                client = new SshClient(SshConnectionInfo);
 
-                SshClient.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshClient_ErrorOccurred);
-                SshClient.HostKeyReceived += new EventHandler<HostKeyEventArgs>(SshClient_HostKeyReceived);
+                client.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshClient_ErrorOccurred);
+                client.HostKeyReceived += new EventHandler<HostKeyEventArgs>(SshClient_HostKeyReceived);
 
 
                 if (Debug > 0) CrestronConsole.PrintLine("Connecting...");
 
-                SshClient.Connect();
+                client.Connect();
 
                 // Create a new shellstream
                 try
                 {
                     CrestronConsole.PrintLine("Creating stream...");
 
-                    SshStream = SshClient.CreateShellStream("terminal", 80, 24, 800, 600, 1024);
-                    SshStream.DataReceived += new EventHandler<ShellDataEventArgs>(SshStream_DataReceived);
-                    SshStream.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshStream_ErrorOccurred);
+                    stream = client.CreateShellStream("terminal", 80, 24, 800, 600, 1024);
+                    stream.DataReceived += new EventHandler<ShellDataEventArgs>(SshStream_DataReceived);
+                    stream.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshStream_ErrorOccurred);
                 }
                 catch (Exception ex)
                 {
@@ -110,11 +110,11 @@ namespace SSHClient
 
         public void Disconnect()
         {
-            if (SshClient != null)
+            if (client != null)
             {
-                SshClient.Disconnect();
-                SshClient.Dispose();
-                SshStream.Dispose();
+                client.Disconnect();
+                client.Dispose();
+                stream.Dispose();
             }
         }
 
@@ -122,7 +122,7 @@ namespace SSHClient
         {
             try
             {
-                SshStream.WriteLine(Command);
+                stream.WriteLine(Command);
             }
             catch (Exception e)
             {
@@ -181,7 +181,7 @@ namespace SSHClient
             {
                 if (prompt.Request.IndexOf("Password:", StringComparison.InvariantCultureIgnoreCase) != -1)
                 {
-                    prompt.Response = SshPassword;
+                    prompt.Response = password;
                     if (Debug > 0) CrestronConsole.PrintLine("Password set...");
                 }
             }
