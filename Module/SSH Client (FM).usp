@@ -5,7 +5,7 @@
 #USER_SIMPLSHARP_LIBRARY "SSHClient"
 
 // module inputs
-Digital_Input connect, disconnect, debug, _skip_;
+Digital_Input init, connect, disconnect, debug, _skip_;
 String_Input tx$[250], _skip_, IPAddress[50], Username[50], Password[50];
 
 // module outputs      
@@ -32,10 +32,15 @@ Callback Function StatusRx(integer status)
 	connected = status;
 	connected_fb = status;
 }
+
+push init
+{
+	client.Initialize(IPAddress, Username, Password);
+}
                                    
 Push connect
 {
-	client.Connect(IPAddress, 22, Username, Password);
+	client.Connect();
 }
 
 Push disconnect
