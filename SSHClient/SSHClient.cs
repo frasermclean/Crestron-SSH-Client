@@ -29,7 +29,7 @@ namespace SSHClient
         public StateChangeHandler SshStateChangeToSimpl { get; set; }
         
         // debugging
-        public ushort debug = 0;
+        public ushort debug_enable = 0;
 
         private bool connected = false;   
         public bool SshState
@@ -52,7 +52,7 @@ namespace SSHClient
 
         public void Debug(string message)
         {
-            if (debug >= 1)
+            if (debug_enable >= 1)
                 CrestronConsole.PrintLine(message);
         }
 
