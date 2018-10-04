@@ -91,7 +91,7 @@ namespace SSHClient
             }
             catch (SshConnectionException e)
             {
-                Debug ("Connection error: " + e.Message);
+                Debug ("Connection error: " + e.Message + ", Reason: " + e.DisconnectReason);
                 return;
             }
             
