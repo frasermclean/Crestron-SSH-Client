@@ -123,7 +123,8 @@ namespace SSHClient
             {
                 try
                 {
-                    client.Disconnect();
+                    if (client.IsConnected)
+                        client.Disconnect();
                 }
                 catch (SshConnectionException e)
                 {
