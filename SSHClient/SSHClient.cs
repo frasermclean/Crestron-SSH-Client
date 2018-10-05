@@ -92,6 +92,7 @@ namespace SSHClient
             catch (SshConnectionException e)
             {
                 Debug ("Connection error: " + e.Message + ", Reason: " + e.DisconnectReason);
+                Disconnect(); // free up allocated resources
                 return;
             }
 
