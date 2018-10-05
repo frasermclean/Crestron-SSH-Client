@@ -10,6 +10,7 @@ namespace SSHClient
 {
     public delegate void CommandEventHandler(SimplSharpString StringVal);
     public delegate void StateChangeHandler(ushort State);
+    public delegate void InitializedDataHandler(ushort state);
 
     public class SSHClientDevice
     {
@@ -25,6 +26,7 @@ namespace SSHClient
         // delegates
         public CommandEventHandler SshRxDataToSimpl { get; set; }
         public StateChangeHandler SshStateChangeToSimpl { get; set; }
+        public InitializedDataHandler InitializedData { get; set; }
         
         // debugging
         private string debug_name;
@@ -58,8 +60,9 @@ namespace SSHClient
             this.debug_name = debug_name;
 
             Debug("Initialize() called. hostname: " + hostname + ", username: " + username + ", password: " + password);
-            
+
             initialized = true;
+            InitializedData(Convert.ToUInt16(1));
         }
 
         public void Connect()
