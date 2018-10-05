@@ -8,9 +8,9 @@ using System.Collections.Generic;
 
 namespace SSHClient
 {
-    public delegate void CommandEventHandler(SimplSharpString StringVal);
-    public delegate void StateChangeHandler(ushort State);
     public delegate void InitializedDataHandler(ushort state);
+    public delegate void ConnectionStateHandler(ushort state);
+    public delegate void ReceivedDataHandler(SimplSharpString data);    
 
     public class SSHClientDevice
     {
@@ -24,27 +24,13 @@ namespace SSHClient
         private string username, hostname, password;
        
         // delegates
-        public CommandEventHandler SshRxDataToSimpl { get; set; }
-        public StateChangeHandler SshStateChangeToSimpl { get; set; }
         public InitializedDataHandler InitializedData { get; set; }
+        public ReceivedDataHandler ReceivedData { get; set; }
+        public ConnectionStateHandler ConnectionState { get; set; }
         
         // debugging
         private string debug_name;
-        public ushort debug_enable = 0;
-
-        private bool connected = false;   
-        public bool SshState
-        {
-            get
-            {
-                return connected;
-            }
-            set
-            {
-                connected = value;
-                SshStateChangeToSimpl(Convert.ToUInt16(value == true ? 1 : 0));
-            }
-        }
+        public ushort debug_enable = 0;       
 
         public void Debug(string message)
         {
@@ -98,8 +84,6 @@ namespace SSHClient
                 Disconnect(); // free up allocated resources
                 return;
             }
-
-            Debug("Connected.");
             
             // create shellstream
             stream = client.CreateShellStream("terminal", 80, 24, 800, 600, 1024);
@@ -107,7 +91,15 @@ namespace SSHClient
             stream.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshStream_ErrorOccurred);    
                 
             // set connected flag
-            SshState = true;
+            if (client.IsConnected)
+            {
+                Debug("Connected.");
+                ConnectionState(Convert.ToUInt16(1));
+            }
+            else
+            {
+                Debug("Could not complete connection.");
+            }
         }
 
         public void Disconnect()
@@ -141,7 +133,9 @@ namespace SSHClient
             }
 
             // set connected flag
-            SshState = false;
+            ConnectionState(Convert.ToUInt16(0));
+
+            CrestronEnvironment.AllowOtherAppsToRun();
         }
 
         public void SendCommand(String Command)
@@ -187,16 +181,16 @@ namespace SSHClient
                     // Return each chunk separately
                     foreach (var str in dataReceivedArray)
                     {
-                        SshRxDataToSimpl(str);
+                        ReceivedData(str);
                     }
                 }
-                else SshRxDataToSimpl(dataReceived);
+                else ReceivedData(dataReceived);
             }
         }
         private void SshStream_ErrorOccurred(object sender, System.EventArgs e)
         {
             Debug("SSH Shellstream error " + e.ToString());
-            Disconnect();
+            Disconnect();            
         }
         
         private void SshAuthMethod_AuthenticationPrompt(object sender, AuthenticationPromptEventArgs e)
