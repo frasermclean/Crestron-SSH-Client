@@ -5,32 +5,38 @@
 #USER_SIMPLSHARP_LIBRARY "SSHClient"
 
 // module inputs
-Digital_Input init, connect, disconnect, debug, _skip_;
-String_Input tx$[250], _skip_, hostname[50], username[20], password[20], debug_name[10];
+digital_input init, connect, disconnect, debug, _skip_;
+string_input tx$[250], _skip_, hostname[50], username[20], password[20], debug_name[10];
 
 // module outputs      
-Digital_Output initialized_fb, connected_fb;
-String_Output _skip_,_skip_,_skip_, rx$, _skip_;
+digital_output initialized_fb, connected_fb;
+string_output _skip_,_skip_,_skip_, rx$, _skip_;
 
 // global variables
-Integer connected;
+integer connected;
 SSHClientDevice client;
 
-Function RegisterDelegates()
+function RegisterDelegates()
 {
- 	RegisterDelegate(client,SshRxDataToSimpl,DataRx);
-	RegisterDelegate(client,SshStateChangeToSimpl,StatusRx);
+	RegisterDelegate(client, InitializedData, InitializedDataHandler);
+	RegisterDelegate(client, ConnectionState, ConnectionStateHandler);
+ 	RegisterDelegate(client, ReceivedData, ReceivedDataHandler);
 }
 
-Callback Function DataRx(string data)
+callback function InitializedDataHandler (integer state)
+{
+	initialized_fb = state;
+}
+
+callback function ConnectionStateHandler (integer state)
+{
+	connected = state;
+	connected_fb = state;
+}
+
+callback function ReceivedDataHandler(string data)
 {
 	rx$ = data;	 	
-}
-
-Callback Function StatusRx(integer status)
-{
-	connected = status;
-	connected_fb = status;
 }
 
 push init
@@ -38,12 +44,12 @@ push init
 	client.Initialize(hostname, username, password, debug_name);
 }
                                    
-Push connect
+push connect
 {
 	client.Connect();
 }
 
-Push disconnect
+push disconnect
 {
  	client.Disconnect();
 }
@@ -57,14 +63,14 @@ release debug
 	client.debug_enable = 0;
 }
 
-Threadsafe Change tx$
+threadsafe Change tx$
 {
 	// only send commands when connected
 	if (connected)
 		client.SendCommand(tx$);
 }
 
-Function Main()
+function Main()
 {
  	WaitForInitializationComplete();
 	RegisterDelegates();
