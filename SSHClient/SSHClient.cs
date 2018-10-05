@@ -143,6 +143,12 @@ namespace SSHClient
 
         public void SendCommand(String Command)
         {
+            if (client == null || client.IsConnected == false)
+            {
+                Debug("SendCommand() called but not connected.");
+                return;
+            }
+
             try
             {
                 stream.WriteLine(Command);
@@ -150,11 +156,7 @@ namespace SSHClient
             catch (Exception e)
             {
                 Debug("Error Sending Command: " + e.Message);
-
-                if (e.Message.ToLower().Contains("not connected"))
-                {
-                    Disconnect();
-                }
+                Disconnect();
             }
         }
 
@@ -203,6 +205,7 @@ namespace SSHClient
                 if (prompt.Request.IndexOf("Password:", StringComparison.InvariantCultureIgnoreCase) != -1)
                 {
                     prompt.Response = password;
+                    
                 }
             }
         }
