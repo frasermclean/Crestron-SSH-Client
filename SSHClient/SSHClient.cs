@@ -94,6 +94,8 @@ namespace SSHClient
                 Debug ("Connection error: " + e.Message + ", Reason: " + e.DisconnectReason);
                 return;
             }
+
+            Debug("Connected.");
             
             // create shellstream
             stream = client.CreateShellStream("terminal", 80, 24, 800, 600, 1024);
@@ -158,7 +160,7 @@ namespace SSHClient
         {
             var stream = (ShellStream)sender;
             string dataReceived = "";
-            Debug("Received Data. Length: " + stream.Length);
+            //Debug("Received Data. Length: " + stream.Length);
             
             // Loop as long as there is data on the stream
             while (stream.DataAvailable)
@@ -190,14 +192,13 @@ namespace SSHClient
         
         private void SshAuthMethod_AuthenticationPrompt(object sender, AuthenticationPromptEventArgs e)
         {
-            Debug("Sending password...");
+            Debug("Sending password");
 
             foreach (AuthenticationPrompt prompt in e.Prompts)
             {
                 if (prompt.Request.IndexOf("Password:", StringComparison.InvariantCultureIgnoreCase) != -1)
                 {
                     prompt.Response = password;
-                    Debug("Password set...");
                 }
             }
         }
@@ -209,7 +210,7 @@ namespace SSHClient
         }
         private void SshClient_ErrorOccurred(object sender, ExceptionEventArgs e)
         {
-            Debug("SSH Client error " + e.ToString());
+            Debug("SSH client error: " + e.Exception.Message);
             Disconnect();
         }
 
