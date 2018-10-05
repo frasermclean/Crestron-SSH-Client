@@ -134,9 +134,11 @@ namespace SSHClient
                 {
                     client.Dispose();
                     client = null;
-                    SshState = false;
                 }
             }
+
+            // set connected flag
+            SshState = false;
         }
 
         public void SendCommand(String Command)
