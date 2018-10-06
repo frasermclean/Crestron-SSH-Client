@@ -106,6 +106,9 @@ namespace SSHClient
         {
             Debug("Disconnect() called.");
 
+            // set connected flag
+            ConnectionState(Convert.ToUInt16(0));
+
             // free stream
             if (stream != null)
             {
@@ -131,11 +134,6 @@ namespace SSHClient
                     client = null;
                 }
             }
-
-            // set connected flag
-            ConnectionState(Convert.ToUInt16(0));
-
-            CrestronEnvironment.AllowOtherAppsToRun();
         }
 
         public void SendCommand(String Command)
@@ -143,18 +141,12 @@ namespace SSHClient
             if (client == null || client.IsConnected == false)
             {
                 Debug("SendCommand() called but not connected.");
+                Disconnect();
                 return;
             }
 
-            try
-            {
-                stream.WriteLine(Command);
-            }
-            catch (Exception e)
-            {
-                Debug("Error Sending Command: " + e.Message);
-                Disconnect();
-            }
+            if (stream != null && stream.CanWrite)
+                stream.WriteLine(Command);           
         }
 
         //************************************* EVENT HANDLERS
