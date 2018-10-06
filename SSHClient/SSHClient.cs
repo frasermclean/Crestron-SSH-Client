@@ -62,15 +62,15 @@ namespace SSHClient
           
             // set up authentication method
             KeyboardInteractiveAuthenticationMethod authMethod = new KeyboardInteractiveAuthenticationMethod(username);
-            authMethod.AuthenticationPrompt += new EventHandler<AuthenticationPromptEventArgs>(SshAuthMethod_AuthenticationPrompt);
+            authMethod.AuthenticationPrompt += new EventHandler<AuthenticationPromptEventArgs>(AuthenticationPromptHandler);
 
             // set up connection info
             ConnectionInfo connectionInfo = new ConnectionInfo(hostname, username, authMethod);
 
             // set up client
             client = new SshClient(connectionInfo);
-            client.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshClient_ErrorOccurred);
-            client.HostKeyReceived += new EventHandler<HostKeyEventArgs>(SshClient_HostKeyReceived);
+            client.ErrorOccurred += new EventHandler<ExceptionEventArgs>(ClientErrorHandler);
+            client.HostKeyReceived += new EventHandler<HostKeyEventArgs>(HostKeyReceivedHandler);
 
             // try to connect
             Debug("Attempting connection to: " + hostname);
@@ -87,8 +87,8 @@ namespace SSHClient
             
             // create shellstream
             stream = client.CreateShellStream("terminal", 80, 24, 800, 600, 1024);
-            stream.DataReceived += new EventHandler<ShellDataEventArgs>(SshStream_DataReceived);
-            stream.ErrorOccurred += new EventHandler<ExceptionEventArgs>(SshStream_ErrorOccurred);    
+            stream.DataReceived += new EventHandler<ShellDataEventArgs>(StreamDataReceivedHandler);
+            stream.ErrorOccurred += new EventHandler<ExceptionEventArgs>(StreamErrorOccurredHandler);    
                 
             // set connected flag
             if (client.IsConnected)
@@ -159,7 +159,7 @@ namespace SSHClient
 
         //************************************* EVENT HANDLERS
 
-        private void SshStream_DataReceived(object sender, ShellDataEventArgs e)
+        private void StreamDataReceivedHandler(object sender, ShellDataEventArgs e)
         {
             var stream = (ShellStream)sender;
             string dataReceived = "";
@@ -187,13 +187,13 @@ namespace SSHClient
                 else ReceivedData(dataReceived);
             }
         }
-        private void SshStream_ErrorOccurred(object sender, System.EventArgs e)
+        private void StreamErrorOccurredHandler(object sender, System.EventArgs e)
         {
             Debug("SSH Shellstream error " + e.ToString());
             Disconnect();            
         }
         
-        private void SshAuthMethod_AuthenticationPrompt(object sender, AuthenticationPromptEventArgs e)
+        private void AuthenticationPromptHandler(object sender, AuthenticationPromptEventArgs e)
         {
             Debug("Sending password");
 
@@ -207,12 +207,12 @@ namespace SSHClient
             }
         }
 
-        private void SshClient_HostKeyReceived(object sender, HostKeyEventArgs e)
+        private void HostKeyReceivedHandler(object sender, HostKeyEventArgs e)
         {
             Debug("Host key received");
             e.CanTrust = true;
         }
-        private void SshClient_ErrorOccurred(object sender, ExceptionEventArgs e)
+        private void ClientErrorHandler(object sender, ExceptionEventArgs e)
         {
             Debug("SSH client error: " + e.Exception.Message);
             Disconnect();
