@@ -110,29 +110,26 @@ namespace SSHClient
             ConnectionState(Convert.ToUInt16(0));
 
             // free stream
-            if (stream != null)
+            try
             {
-                stream.Dispose();
-                stream = null;
+                if (stream != null)
+                    stream.Dispose();
+            }
+            catch (Exception e)
+            {
+                Debug("Disconnect() exception occured freeing stream: " + e.Message);
             }
 
             // free client
-            if (client != null)
+            try
             {
-                try
-                {
-                    if (client.IsConnected)
-                        client.Disconnect();
-                }
-                catch (SshConnectionException e)
-                {
-                    Debug("Exception occured while disconnecting: " + e.Message);
-                }
-                finally
-                {
-                    client.Dispose();
-                    client = null;
-                }
+                if (client != null && client.IsConnected)
+                    client.Disconnect();
+                client.Dispose();
+            }                
+            catch (Exception e)
+            {
+                Debug("Disconnect() Exception occured freeing client: " + e.Message);
             }
         }
 
