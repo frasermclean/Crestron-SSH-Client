@@ -1,0 +1,159 @@
+#DEFAULT_VOLATILE
+#ENABLE_STACK_CHECKING
+#ENABLE_TRACE
+                                               
+#USER_SIMPLSHARP_LIBRARY "SSHClient"
+#SYMBOL_NAME "SSH Client Processor v1.0.1"
+
+// module inputs
+DIGITAL_INPUT init, connect, disconnect, debug, _skip_;
+STRING_INPUT _skip_, IP_AddressIn[50], UsernameIn[20], PasswordIn[20], debug_name[10];
+BUFFER_INPUT tx$[250];
+// module outputs      
+digital_output initialized_fb, connected_fb;
+string_output _skip_,_skip_,_skip_, rx$, _skip_;
+//Parameters
+STRING_PARAMETER IP_Address_Param[50];
+STRING_PARAMETER User_Name_Param[50];
+STRING_PARAMETER Password_Param[50];
+//Parameter Properties
+#BEGIN_PARAMETER_PROPERTIES User_Name_Param, Password_Param
+	propDefaultValue = "admin";
+#END_PARAMETER_PROPERTIES
+
+
+// global variables
+integer connected, initializing;
+string hostname[50], username[50], password[50], debugname$[10];
+SSHClientDevice client;
+
+function RegisterDelegates()
+{
+	RegisterDelegate(client, InitializedData, InitializedDataHandler);
+	RegisterDelegate(client, ConnectionState, ConnectionStateHandler);
+ 	RegisterDelegate(client, ReceivedData, ReceivedDataHandler);
+}
+
+callback function InitializedDataHandler (integer state)
+{
+	initialized_fb = state;
+}
+
+callback function ConnectionStateHandler (integer state)
+{
+	connected = state;
+	connected_fb = state;
+}
+
+callback function ReceivedDataHandler(string data)
+{
+	rx$ = data;	 	
+}
+
+callback GatherEventHandler fnProcessBufferRx(GatherEventArgs Args) 
+{
+	string tempString[20000];
+    Try {
+        if ( Args.Results >= 0 ) {
+            tempString = Args.RxString;
+				if (connected)
+				{
+					client.SendCommand(tempString);
+					tempString = "";
+				}
+            }
+        }
+    Catch 
+		{
+        GenerateUserError("%s Exception %s", GetSymbolInstanceName(), GetExceptionMessage());
+        }
+    RearmGatherASync(args.Input);
+}
+
+push init
+{
+	if(connected = 1)
+	{
+    	client.Disconnect();
+		delay(100);
+		client.Initialize(hostname, username, password, debugname$);		
+	}
+	else
+	{
+	client.Initialize(hostname, username, password, debugname$);
+	}
+}
+                               
+push connect
+{
+	client.Connect();
+}
+
+push disconnect
+{
+ 	client.Disconnect();
+}
+
+push debug
+{
+	client.debug_enable = 1;
+}
+release debug
+{
+	client.debug_enable = 0;
+}
+
+threadsafe change IP_AddressIn
+{
+	hostname = IP_AddressIn;
+}
+
+threadsafe change UsernameIn
+{
+	username = UsernameIn;}
+
+threadsafe change PasswordIn
+{
+	password = PasswordIn;
+}
+
+threadsafe change debug_name
+{
+	debugname$ = debug_name;
+}
+
+function Main()
+{
+ 	WaitForInitializationComplete();
+	initializing = 1;
+	RegisterDelegates();
+	gatherAsync("\x0D\x0A", tx$, fnProcessBufferRx);
+	wait(100)
+	{
+		if(len(IP_Address_Param) > 3)
+		{
+			if(len(IP_AddressIn) <= 0)
+			{
+       			hostname = IP_Address_Param;
+			}
+		}
+		if(len(User_Name_Param) > 3)
+		{
+			if(len(UsernameIn) <= 0)
+			{
+         		username = User_Name_Param;
+			}		
+		}
+		if(len(Password_Param) > 0)
+		{
+			if(len(PasswordIn) <= 0)
+			{			
+				password = Password_Param;
+        	}
+		}
+		if(len(hostname) > 0 & len(username) > 0 & len(password) > 0)
+		{
+			client.Initialize(hostname, username, password, debugname$);
+		}
+	}
+}                    

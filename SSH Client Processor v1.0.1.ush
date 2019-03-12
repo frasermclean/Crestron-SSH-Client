@@ -1,0 +1,139 @@
+[BEGIN]
+  Version=1
+[END]
+[BEGIN]
+  ObjTp=FSgntr
+  Sgntr=UserSPlus
+  RelVrs=1
+  IntStrVrs=1
+  SPlusVrs=4.04.01
+  CrossCplrVrs=1.3
+[END]
+[BEGIN]
+  ObjTp=Hd
+[END]
+[BEGIN]
+  ObjTp=Symbol
+  Exclusions=1,19,20,21,88,89,167,168,179,213,214,215,216,217,225,226,248,249,266,267,310,362,378,380,405,407,408,409,478,522,537,554,586,590,611,624,718,756,767,830,841,842,854,883,955,1032,1062,1079,1128,1129,1134,1140,1157,1158,1195,1199,1220,1221,1222,1223,1299,1348,1349,1439,1472,1473,1499,1746,1803,1975,2229,2354,2514,2523,2532,2706,2707,3235,3236,3427,3454,3567,3568,3601,3602,3708,3902,3903,3912,3918,3925,3926,4206,4207,
+  Exclusions_CDS=5
+  Inclusions_CDS=6
+  Name=SSH Client Processor v1.0.1
+  SmplCName=SSH Client Processor v1.0.1.usp
+  Code=1
+  SysRev5=4.006
+  SMWRev=4.04.01
+  InputCue1=init
+  InputSigType1=Digital
+  InputCue2=connect
+  InputSigType2=Digital
+  InputCue3=disconnect
+  InputSigType3=Digital
+  InputCue4=debug
+  InputSigType4=Digital
+  InputCue5=[~UNUSED~]
+  InputSigType5=Digital
+  OutputCue1=initialized_fb
+  OutputSigType1=Digital
+  OutputCue2=connected_fb
+  OutputSigType2=Digital
+  InputList2Cue1=[~UNUSED~]
+  InputList2SigType1=Serial
+  InputList2Cue2=IP_AddressIn
+  InputList2SigType2=Serial
+  InputList2Cue3=UsernameIn
+  InputList2SigType3=Serial
+  InputList2Cue4=PasswordIn
+  InputList2SigType4=Serial
+  InputList2Cue5=debug_name
+  InputList2SigType5=Serial
+  InputList2Cue6=tx$
+  InputList2SigType6=Serial
+  OutputList2Cue1=[~UNUSED~]
+  OutputList2SigType1=Serial
+  OutputList2Cue2=[~UNUSED~]
+  OutputList2SigType2=Serial
+  OutputList2Cue3=[~UNUSED~]
+  OutputList2SigType3=Serial
+  OutputList2Cue4=rx$
+  OutputList2SigType4=Serial
+  OutputList2Cue5=[~UNUSED~]
+  OutputList2SigType5=Serial
+  ParamCue1=[Reference Name]
+  ParamCue2=IP_Address_Param
+  ParamSigType2=String
+  ParamCue3=User_Name_Param
+  ParamSigType3=String
+  ParamCue4=Password_Param
+  ParamSigType4=String
+  MinVariableInputs=5
+  MaxVariableInputs=5
+  MinVariableInputsList2=6
+  MaxVariableInputsList2=6
+  MinVariableOutputs=2
+  MaxVariableOutputs=2
+  MinVariableOutputsList2=5
+  MaxVariableOutputsList2=5
+  MinVariableParams=3
+  MaxVariableParams=3
+  Expand=expand_separately
+  Expand2=expand_separately
+  ProgramTree=Logic
+  SymbolTree=32
+  Hint=
+  PdfHelp=
+  HelpID= 
+  Render=4
+  Smpl-C=16
+  CompilerCode=-48
+  CompilerParamCode=27
+  CompilerParamCode5=14
+  NumFixedParams=1
+  Pp1=1
+  Pp2=2
+  Pp3=3
+  Pp4=4
+  MPp=4
+  NVStorage=10
+  ParamSigType1=String
+  SmplCInputCue1=o#
+  SmplCOutputCue1=i#
+  SmplCInputList2Cue1=an#
+  SmplCOutputList2Cue1=ai#
+  SPlus2CompiledName=S2_SSH_Client_Processor_v1_0_1
+  SymJam=NonExclusive
+  FileName=SSH Client Processor v1.0.1.ush
+  SIMPLPlusModuleEncoding=0
+  clz1=SSHClient
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=1
+  Tp=1
+  NoS=False
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=2
+  Tp=1
+  HD=False
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=3
+  Tp=1
+  HD=True
+  DV=admin
+  NoS=False
+  VVS=0
+[END]
+[BEGIN]
+  ObjTp=Dp
+  H=4
+  Tp=1
+  HD=True
+  DV=admin
+  NoS=False
+  VVS=0
+[END]
