@@ -85,7 +85,9 @@ namespace TestSystem
         {
             manager.Send(input.Trim());
         }
+        #endregion
 
+        #region Event callbacks
         void ConnectionStatusCallbackHandler(bool value)
         {
             if (value)
