@@ -5,7 +5,7 @@ using Crestron.SimplSharpPro.CrestronThread;        	// For Threading
 using Crestron.SimplSharpPro.Diagnostics;		    	// For System Monitor Access
 using Crestron.SimplSharpPro.DeviceSupport;         	// For Generic Device Support
 
-using FM.SSHClientManager;
+using FM.SSH;
 
 namespace TestSystem
 {

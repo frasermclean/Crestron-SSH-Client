@@ -6,7 +6,7 @@ using Crestron.SimplSharp;
 using Crestron.SimplSharp.Ssh;
 using Crestron.SimplSharp.Ssh.Common;
 
-namespace FM.SSHClientManager
+namespace FM.SSH
 {
     public delegate void ConnectionStatusCallback(bool connected);
     public delegate void ReceiveDataCallback(string data);
