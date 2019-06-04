@@ -209,14 +209,16 @@ namespace FM.SSH
                 {
                     initialized = true;
                     Trace("Initialize() initialized successfully.");
-                    InitializedCallback(true);
+                    if (InitializedCallback != null)
+                        InitializedCallback(true);
                     return true;
                 }
                 else
                 {
                     initialized = false;
                     Trace("Initialize() error validating parameters.");
-                    InitializedCallback(false);
+                    if (InitializedCallback != null)
+                        InitializedCallback(false);
                     return false;
                 }
             }
@@ -328,5 +330,5 @@ namespace FM.SSH
             Reset();
         }
         #endregion
-    }    
+    }
 }
