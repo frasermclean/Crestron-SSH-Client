@@ -15,10 +15,30 @@ namespace FM.SSH
         }
         #endregion
 
+        #region Properties
+        public new ushort TraceEnabled
+        {
+            get
+            {
+                if (traceEnabled)
+                    return 1;
+                else
+                    return 0;
+            }            
+            set
+            {
+                if (value > 0)
+                    traceEnabled = true;
+                else
+                    traceEnabled = false;
+            }
+        }
+        #endregion
+
         #region Public methods
         public void Initialize()
         {
-            base.Initialize(debug, hostname, port, username, password);
+            base.Initialize(traceEnabled, hostname, port, username, password);
         }
         public new void Connect()
         {
