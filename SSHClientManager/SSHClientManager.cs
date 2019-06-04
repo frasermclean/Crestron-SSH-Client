@@ -8,10 +8,6 @@ using Crestron.SimplSharp.Ssh.Common;
 
 namespace FM.SSH
 {
-    public delegate void InitializedCallback(bool value);
-    public delegate void ConnectionStatusCallback(bool connected);
-    public delegate void ReceiveDataCallback(string data);
-
     public class SshClientManager
     {
         #region Class variables
@@ -20,9 +16,15 @@ namespace FM.SSH
         protected ushort port;
         SshClient client;
         ShellStream stream;
-        public event InitializedCallback InitializedCallback;
-        public event ConnectionStatusCallback ConnectionStatusCallback;
-        public event ReceiveDataCallback ReceiveDataCallback;
+        #endregion
+
+        #region Delegates
+        public delegate void InitializedDelegate(bool value);
+        public delegate void ConnectionStatusDelegate(bool connected);
+        public delegate void ReceiveDataDelegate(string data);
+        public event InitializedDelegate InitializedCallback;
+        public event ConnectionStatusDelegate ConnectionStatusCallback;
+        public event ReceiveDataDelegate ReceiveDataCallback;
         #endregion
 
         #region Constructor
