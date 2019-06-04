@@ -9,6 +9,15 @@ namespace FM.SSH
 {
     public class SimplSshClient : SshClientManager
     {
+        #region Delegates
+        public new delegate void InitializedDelegate(ushort value);
+        public new delegate void ConnectionStatusDelegate(ushort connected);
+        public new delegate void ReceiveDataDelegate(SimplSharpString data);
+        public InitializedDelegate InitializedDataMethod { get; set; }
+        public ConnectionStatusDelegate ConnectionStateMethod { get; set; }
+        public ReceiveDataDelegate ReceivedDataMethod { get; set; }
+        #endregion
+
         #region Constructor
         public SimplSshClient()
         {
