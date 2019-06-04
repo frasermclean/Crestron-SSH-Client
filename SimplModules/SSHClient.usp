@@ -6,7 +6,10 @@
 
 // module inputs
 digital_input initialize, connect, disconnect, debug, _skip_;
-string_input tx$[250], _skip_, hostname[50], username[20], password[20], debug_name[10];
+string_input tx$[250], _skip_;
+string_input hostname[50];
+analog_input port;
+string_input username[20], password[20], debug_name[10];
 
 // module outputs      
 digital_output initialized_fb, connected_fb;
@@ -36,7 +39,10 @@ callback function ReceivedDataHandler(string data)
 {
 	rx$ = data;	 	
 }
-                                   
+push initialize
+{
+	client.Initialize();
+}                                   
 push connect
 {
 	client.Connect();
@@ -55,12 +61,26 @@ release debug
 {
 	client.TraceEnabled = 0;
 }
-
+change hostname
+{
+	client.Hostname = hostname;
+}
+change port
+{
+	client.Port = port;
+}
+change username
+{
+	client.Username = username;
+}
+change password
+{
+	client.Password = password;
+} 
 threadsafe Change tx$
 {
 	client.Send(tx$);
 }
-
 function Main()
 {
  	WaitForInitializationComplete();
