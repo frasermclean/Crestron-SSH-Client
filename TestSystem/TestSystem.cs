@@ -11,7 +11,7 @@ namespace TestSystem
 {
     public class TestSystem : CrestronControlSystem
     {
-        SSHClientManager manager;
+        SshClientManager manager;
 
         // enter test values here
         string hostname = "roach";
@@ -36,7 +36,7 @@ namespace TestSystem
         {
             try
             {
-                manager = new SSHClientManager(hostname, port, username, password);
+                manager = new SshClientManager(true, hostname, port, username, password);
                 manager.ConnectionStatusCallback += new ConnectionStatusCallback(ConnectionStatusCallbackHandler);
                 manager.ReceiveDataCallback += new ReceiveDataCallback(ReceiveDataCallbackHandler);
 
@@ -57,7 +57,7 @@ namespace TestSystem
         void ConsoleTraceHandler(string input)
         {
             bool value = Boolean.Parse(input);
-            manager.Debug = value;
+            manager.TraceEnabled = value;
             if (value)
                 CrestronConsole.PrintLine("Enabled debugging.");
             else
