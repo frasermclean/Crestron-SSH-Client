@@ -9,7 +9,7 @@ digital_input initialize, connect, disconnect, debug, _skip_;
 string_input tx$[250], _skip_, hostname[50], username[20], password[20], debug_name[10];
 
 // module outputs      
-digital_output connected_FB;
+digital_output initialized_fb, connected_fb;
 string_output _skip_,_skip_,_skip_, rx$, _skip_;
 
 // global variables
@@ -17,8 +17,14 @@ SimplSshClient client;
 
 function RegisterDelegates()
 {
-	//RegisterDelegate(manager, ConnectionStatusCallback, ConnectionStateHandler);
- 	//RegisterDelegate(manager, ReceiveDataCallback, ReceivedDataHandler);
+	RegisterDelegate(client, InitializedDataMethod, InitializedDataHandler);
+	RegisterDelegate(client, ConnectionStateMethod, ConnectionStateHandler);
+ 	RegisterDelegate(client, ReceivedDataMethod, ReceivedDataHandler);
+}
+
+callback function InitializedDataHandler (integer state)
+{
+	initialized_fb = state;
 }
 
 callback function ConnectionStateHandler (integer state)
