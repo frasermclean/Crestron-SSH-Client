@@ -8,64 +8,48 @@ using Crestron.SimplSharp.Ssh.Common;
 
 namespace FM.SSH
 {
+    public delegate void InitializedCallback(bool value);
     public delegate void ConnectionStatusCallback(bool connected);
     public delegate void ReceiveDataCallback(string data);
 
-    public class SSHClientManager
+    public class SshClientManager
     {
         #region Class variables
-        bool debug;
-        string debugName, hostname, username, password;
-        ushort port;
+        protected bool traceEnabled, initialized;
+        protected string traceName, hostname, username, password;
+        protected ushort port;
         SshClient client;
         ShellStream stream;
+        public event InitializedCallback InitializedCallback;
         public event ConnectionStatusCallback ConnectionStatusCallback;
         public event ReceiveDataCallback ReceiveDataCallback;
         #endregion
 
         #region Constructor
-        public SSHClientManager(string hostname, ushort port, string username, string password)
+        public SshClientManager()
         {
-            Initialize(false, hostname, port, username, password);
+        }
+        public SshClientManager(string hostname, ushort port, string username, string password)
+        {
+            initialized = Initialize(false, hostname, port, username, password);
+        }
+        public SshClientManager(bool debug, string hostname, ushort port, string username, string password)
+        {
+            initialized = Initialize(debug, hostname, port, username, password);
         }
 
-        public SSHClientManager(bool debug, string hostname, ushort port, string username, string password)
-        {
-            Initialize(debug, hostname, port, username, password);
-        }
-
-        void Initialize(bool debug, string hostname, ushort port, string username, string password)
-        {
-            try
-            {
-                debugName = this.GetType().Name;
-
-                // assign class variables
-                this.debug = debug;
-                this.hostname = hostname;
-                this.port = port;
-                this.username = username;
-                this.password = password;
-
-                Trace("Initialize() initialized successfully.");
-            }
-            catch (Exception e)
-            {
-                Trace("Initialize() caught exception: " + e.Message);
-            }
-        }
         #endregion
 
         #region Properties
-        public bool Debug
+        public bool TraceEnabled
         {
-            get { return debug; }
-            set { debug = value; }
+            get { return traceEnabled; }
+            set { traceEnabled = value; }
         }
-        public string DebugName
+        public string TraceName
         {
-            get { return debugName; }
-            set { debugName = value; }
+            get { return traceName; }
+            set { traceName = value; }
         }
         public bool Connected
         {
@@ -77,12 +61,41 @@ namespace FM.SSH
                     return false;
             }
         }
+        public bool Initialized
+        {
+            get { return initialized; }
+        }
+        public string Hostname
+        {
+            get { return hostname; }
+            set { hostname = value; }
+        }
+        public ushort Port
+        {
+            get { return port; }
+            set { port = value; }
+        }
+        public string Username
+        {
+            get { return username; }
+            set { username = password; }
+        }
+        public string Password
+        {
+            get { return password; }
+            set { password = value; }
+        }
         #endregion
 
         #region Public methods
         public bool Connect()
         {
-            if (client == null)
+            if (!initialized)
+            {
+                Trace("Connect() called but data is not initialized.");
+                return false;
+            }
+            else if (client == null)
             {
                 // set up authentication method
                 KeyboardInteractiveAuthenticationMethod authMethod = new KeyboardInteractiveAuthenticationMethod(username);
@@ -125,12 +138,10 @@ namespace FM.SSH
                 return client.IsConnected;
             }
         }
-
         public bool Disconnect()
         {
             return Reset();
         }
-
         public bool Send(string s)
         {
             try
@@ -172,13 +183,77 @@ namespace FM.SSH
         #region Private methods
         void Trace(string message)
         {
-            if (debug)
+            if (traceEnabled)
             {
-                string line = String.Format("[{0}] {1}", debugName, message.Trim());
+                string line = String.Format("[{0}] {1}", traceName, message.Trim());
                 CrestronConsole.PrintLine(line);
             }
         }
+        protected bool Initialize(bool traceEnabled, string hostname, ushort port, string username, string password)
+        {
+            try
+            {
+                // assign default traceEnabled name
+                if (traceName == null)
+                    traceName = this.GetType().Name;
 
+                // assign class variables
+                this.traceEnabled = traceEnabled;
+                this.hostname = hostname;
+                this.port = port;
+                this.username = username;
+                this.password = password;
+
+                // validate data
+                if (Validate(hostname, port, username, password))
+                {
+                    initialized = true;
+                    Trace("Initialize() initialized successfully.");
+                    InitializedCallback(true);
+                    return true;
+                }
+                else
+                {
+                    initialized = false;
+                    Trace("Initialize() error validating parameters.");
+                    InitializedCallback(false);
+                    return false;
+                }
+            }
+            catch (Exception e)
+            {
+                Trace("Initialize() caught exception: " + e.Message);
+                return false;
+            }
+        }
+        bool Validate(string hostname, ushort port, string username, string password)
+        {
+            try
+            {
+                // check hostname
+                if (hostname == null || hostname.Length == 0)
+                    return false;
+
+                // check port
+                if (port == 0)
+                    return false;
+
+                // check username
+                if (username == null || username.Length == 0)
+                    return false;
+
+                // check password
+                if (password == null)
+                    return false;
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Trace("Validate() exception caught: " + e.Message);
+                return false;
+            }
+        }
         bool Reset()
         {
             try
@@ -220,13 +295,11 @@ namespace FM.SSH
             Trace("ClientErrorOccurredHandler() error occurred: " + args.Exception.Message);
             Reset();
         }
-
         void ClientHostKeyEventHandler(object sender, HostKeyEventArgs args)
         {
             Trace("ClientHostKeyEventHandler() host key received.");
             args.CanTrust = true;
         }
-
         void AuthenticationPromptHandler(object sender, AuthenticationPromptEventArgs args)
         {
             Trace("AuthenticationPromptHandler() sending password.");
@@ -236,7 +309,6 @@ namespace FM.SSH
                     prompt.Response = password;
             }
         }
-
         void StreamDataReceivedHandler(object sender, ShellDataEventArgs args)
         {
             Trace("StreamDataReceivedHandler() received data. Length: " + args.Data.Length);
@@ -250,12 +322,11 @@ namespace FM.SSH
                     ReceiveDataCallback(data);
             }
         }
-
         void StreamErrorOccurredHandler(object sender, EventArgs args)
         {
             Trace("StreamErrorOccurredHandler() error occurred: " + args.ToString());
             Reset();
         }
         #endregion
-    }
+    }    
 }
