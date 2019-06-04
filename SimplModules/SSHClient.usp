@@ -2,46 +2,33 @@
 #ENABLE_STACK_CHECKING
 #ENABLE_TRACE
                                                
-#USER_SIMPLSHARP_LIBRARY "SSHClient"
+#USER_SIMPLSHARP_LIBRARY "SimplSshClient"
 
 // module inputs
-digital_input init, connect, disconnect, debug, _skip_;
+digital_input initialize, connect, disconnect, debug, _skip_;
 string_input tx$[250], _skip_, hostname[50], username[20], password[20], debug_name[10];
 
 // module outputs      
-digital_output initialized_fb, connected_fb;
+digital_output connected_FB;
 string_output _skip_,_skip_,_skip_, rx$, _skip_;
 
 // global variables
-integer connected;
-SSHClientDevice client;
+SimplSshClient client;
 
 function RegisterDelegates()
 {
-	RegisterDelegate(client, InitializedData, InitializedDataHandler);
-	RegisterDelegate(client, ConnectionState, ConnectionStateHandler);
- 	RegisterDelegate(client, ReceivedData, ReceivedDataHandler);
-}
-
-callback function InitializedDataHandler (integer state)
-{
-	initialized_fb = state;
+	//RegisterDelegate(manager, ConnectionStatusCallback, ConnectionStateHandler);
+ 	//RegisterDelegate(manager, ReceiveDataCallback, ReceivedDataHandler);
 }
 
 callback function ConnectionStateHandler (integer state)
 {
-	connected = state;
 	connected_fb = state;
 }
 
 callback function ReceivedDataHandler(string data)
 {
 	rx$ = data;	 	
-}
-
-push init
-{
-	client.Initialize(hostname, username, password, debug_name);
 }
                                    
 push connect
@@ -56,18 +43,16 @@ push disconnect
 
 push debug
 {
-	client.debug_enable = 1;
+	client.TraceEnabled = 1;
 }
 release debug
 {
-	client.debug_enable = 0;
+	client.TraceEnabled = 0;
 }
 
 threadsafe Change tx$
 {
-	// only send commands when connected
-	if (connected)
-		client.SendCommand(tx$);
+	client.Send(tx$);
 }
 
 function Main()
