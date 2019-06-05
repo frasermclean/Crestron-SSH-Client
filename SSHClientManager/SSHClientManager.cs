@@ -28,9 +28,6 @@ namespace FM.SSH
         #endregion
 
         #region Constructor
-        public SshClientManager()
-        {
-        }
         public SshClientManager(string hostname, ushort port, string username, string password)
         {
             initialized = Initialize(false, hostname, port, username, password);
@@ -39,7 +36,6 @@ namespace FM.SSH
         {
             initialized = Initialize(debug, hostname, port, username, password);
         }
-
         #endregion
 
         #region Properties
