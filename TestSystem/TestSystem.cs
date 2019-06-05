@@ -37,8 +37,8 @@ namespace TestSystem
             try
             {
                 manager = new SshClientManager(true, hostname, port, username, password);
-                manager.ConnectionStatusCallback += new ConnectionStatusCallback(ConnectionStatusCallbackHandler);
-                manager.ReceiveDataCallback += new ReceiveDataCallback(ReceiveDataCallbackHandler);
+                manager.ConnectionStatusCallback += new SshClientManager.ConnectionStatusDelegate(ConnectionStatusCallbackHandler);
+                manager.ReceiveDataCallback += new SshClientManager.ReceiveDataDelegate(ReceiveDataCallbackHandler);
 
                 // add console commands for testing
                 CrestronConsole.AddNewConsoleCommand(ConsoleTraceHandler, "Trace", "Enable / disable debugging", ConsoleAccessLevelEnum.AccessOperator);
