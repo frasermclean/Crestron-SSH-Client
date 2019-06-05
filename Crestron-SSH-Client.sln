@@ -4,8 +4,14 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SshClientManager", "SSHClientManager\SshClientManager.csproj", "{9779F649-1930-49FD-97B0-04343A80B27A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestSystem", "TestSystem\TestSystem.csproj", "{533DF225-BFE7-4740-9E19-7195944D198F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9779F649-1930-49FD-97B0-04343A80B27A} = {9779F649-1930-49FD-97B0-04343A80B27A}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimplSshClient", "SimplSshClient\SimplSshClient.csproj", "{D871AC21-809A-44EB-A2B8-6CC9A7897CFD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9779F649-1930-49FD-97B0-04343A80B27A} = {9779F649-1930-49FD-97B0-04343A80B27A}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
