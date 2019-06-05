@@ -110,27 +110,29 @@ namespace FM.SSH
                 client = new SshClient(hostname, port, username, password);
                 client.ErrorOccurred += new EventHandler<ExceptionEventArgs>(ClientErrorOccurredHandler);
                 client.HostKeyReceived += new EventHandler<HostKeyEventArgs>(ClientHostKeyEventHandler);
-
-                // attempt to connect
-                Trace(String.Format("Connect() attempting connection to {0} on port {1}.", hostname, port));
+                
                 try
                 {
+                    // attempt to connect
+                    Trace(String.Format("Connect() attempting connection to {0} on port {1}.", hostname, port));
                     client.Connect();
+
+                    // create shellstream
+                    stream = client.CreateShellStream("terminal", 80, 24, 800, 600, 1024);
+                    stream.DataReceived += new EventHandler<ShellDataEventArgs>(StreamDataReceivedHandler);
+                    stream.ErrorOccurred += new EventHandler<ExceptionEventArgs>(StreamErrorOccurredHandler);
                 }
-                catch (SshConnectionException e)
+                catch (Exception e)
                 {
-                    Trace("Connect() connection exception: " + e.Message + ", reason: " + e.DisconnectReason);
+                    Trace("Connect() connection exception: " + e.Message);
                     Reset();
                     return false;
                 }
+
+                // report success
                 Trace("Connect() connection successful.");
                 if (ConnectionStatusCallback != null)
                     ConnectionStatusCallback(true);
-
-                // create shellstream
-                stream = client.CreateShellStream("terminal", 80, 24, 800, 600, 1024);
-                stream.DataReceived += new EventHandler<ShellDataEventArgs>(StreamDataReceivedHandler);
-                stream.ErrorOccurred += new EventHandler<ExceptionEventArgs>(StreamErrorOccurredHandler);
 
                 return true;
             }
